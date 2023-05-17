@@ -3,8 +3,8 @@
  */
 public final class Percusion extends Instrumento{
 
-    private String tipoPercusion;
-    private String altura;
+    private final String tipoPercusion;
+    private final String altura;
 
     /**
      * Constructor de la clase

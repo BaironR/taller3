@@ -3,11 +3,11 @@
  */
 abstract class Instrumento {
 
-    private String codigo;
-    private double precio;
+    private final String codigo;
+    private final double precio;
     private int stock;
-    private String instrumento;
-    private String material;
+    private final String instrumento;
+    private final String material;
 
     /**
      * Constructor de la clase
@@ -65,14 +65,6 @@ abstract class Instrumento {
      */
     public String getMaterial() {
         return material;
-    }
-
-    /**
-     *
-     * @param precio setea el precio
-     */
-    public void setPrecio(double precio) {
-        this.precio = precio;
     }
 
     /**

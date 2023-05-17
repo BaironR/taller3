@@ -1,4 +1,3 @@
-import ucn.StdOut;
 
 import java.io.IOException;
 
@@ -10,9 +9,9 @@ public class Main {
     /**
      *
      * @param args
-     * @throws IOException
+     * @throws IOException en caso de error
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
 
         try{
 

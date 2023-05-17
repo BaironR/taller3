@@ -2,9 +2,9 @@
  * Clase de objetos tipo Cuerda, extiende a Instrumento
  */
 public final class Cuerda extends Instrumento {
-    private String tipoCuerda;
-    private int numCuerdas;
-    private String tipoInstrumento;
+    private final String tipoCuerda;
+    private final int numCuerdas;
+    private final String tipoInstrumento;
 
     /**
      * Constructor de Cuerda

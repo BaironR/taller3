@@ -1,11 +1,8 @@
 import ucn.StdOut;
 
-import java.util.List;
-import java.util.Objects;
-
 public class ListaInstrumentos {
 
-    private Instrumento[] lista;
+    private final Instrumento[] lista;
     int cantMax;
     int cantActual;
 
@@ -27,8 +24,7 @@ public class ListaInstrumentos {
 
     public Instrumento buscar(int pos){
 
-      Instrumento instrumento = this.lista[pos];
-      return instrumento;
+        return this.lista[pos];
     }
 
     public void venderInstrumento(int pos){

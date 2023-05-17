@@ -523,9 +523,9 @@ public class SistemaImpl implements Sistema {
     /**
      * Metodo general de lectura de archivos
      *
-     * @param archivoEntrada
-     * @param lista
-     * @return lista
+     * @param archivoEntrada archivo a leer
+     * @param lista lista para almacenar los datos
+     * @return lista con los datos
      * @throws IOException en caso de error
      */
   public ListaInstrumentos lecturaArchivo(ArchivoEntrada archivoEntrada, ListaInstrumentos lista) throws IOException {
@@ -591,8 +591,8 @@ public class SistemaImpl implements Sistema {
     /**
      * Metodo general de escritura de archivo
      *
-     * @param lista
-     * @param nombreArchivo
+     * @param lista con los datos
+     * @param nombreArchivo nombre del archivo de salida
      * @param append dependiendo de su valor permite sobreescribir el archivo o mantener el anterior antes de escribir
      */
   public void escrituraArchivo(ListaInstrumentos lista, String nombreArchivo, boolean append){
@@ -645,9 +645,7 @@ public class SistemaImpl implements Sistema {
           e.printStackTrace();
       }
 
-
   }
-
 
     /**
      * validacion de que la opcion sea correcta
