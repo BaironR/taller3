@@ -1,17 +1,30 @@
 import ucn.StdOut;
 
+/**
+ * Lista de variables tipo Instrumento
+ */
 public class ListaInstrumentos {
 
     private final Instrumento[] lista;
     int cantMax;
     int cantActual;
 
+    /**
+     * Constructor de ListaInstrumentos
+     *
+     * @param cantMax tamanio del arreglo
+     */
     public ListaInstrumentos(int cantMax) {
         this.cantMax = cantMax;
         this.lista = new Instrumento[cantMax];
         cantActual = 0;
     }
 
+    /**
+     * Metodo para agregar instrumentos a la lista
+     *
+     * @param instrumento a agregar
+     */
     public void agregar(Instrumento instrumento){
 
         if (cantActual == cantMax){
@@ -22,11 +35,22 @@ public class ListaInstrumentos {
         cantActual++;
     }
 
+    /**
+     * Metodo para buscar instrumentos en la lista
+     *
+     * @param pos del instrumento a buscar
+     * @return this.lista[pos]: Instrumento almacenado en la lista en la posicion pos
+     */
     public Instrumento buscar(int pos){
 
         return this.lista[pos];
     }
 
+    /**
+     * Metodo para vender un instrumento, le resta 1 al stock y lo setea
+     *
+     * @param pos del instrumento a vender
+     */
     public void venderInstrumento(int pos){
 
         int stock = this.lista[pos].getStock()-1;
@@ -40,6 +64,9 @@ public class ListaInstrumentos {
         this.lista[pos].setStock(stock);
     }
 
+    /**
+     * Metodo para eliminar instrumentos repetidos, si son iguales en todos sus atributos se suma su stock
+     */
     public void filtrarLista() {
 
         for (int i=0; i< (this.cantActual-1) ; i++){
@@ -84,6 +111,13 @@ public class ListaInstrumentos {
         }
     }
 
+    /**
+     * Metodo para comparar dos instrumentos en base a sus atributos
+     *
+     * @param e1 instrumento 1
+     * @param e2 instrumento 2
+     * @return true si son iguales, false si no lo son
+     */
     public boolean esIgual(Instrumento e1, Instrumento e2){
 
         if (e1 instanceof Cuerda && e2 instanceof Cuerda){

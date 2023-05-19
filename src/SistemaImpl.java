@@ -78,6 +78,133 @@ public class SistemaImpl implements Sistema {
     }
 
     /**
+     * lectura del archivo aniadirInstrumentos.csv
+     *
+     * @param archivoEntrada "aniadirInstrumentos.csv"
+     * @throws IOException en caso de que el archivo implicado tire error
+     */
+    @Override
+    public void leerArchivoInstrumentos(ArchivoEntrada archivoEntrada) throws IOException {
+
+        // lectura de archivo
+        while (!archivoEntrada.isEndFile()) {
+
+            Registro registro = archivoEntrada.getRegistro();
+            String codigo = registro.getString();
+
+            if (codigo != null) {
+
+                String precioString = registro.getString();
+
+                if (precioString != null) {
+
+                    // validacion de que el precio sea un numero
+                    double precio = validarNumero(precioString);
+
+                    if (precio != -1) {
+
+                        String stockString = registro.getString();
+
+                        // Validacion de que el stock sea un numero entero
+                        if (stockString != null) {
+
+                            double stockDouble = validarNumero(stockString);
+                            int stock = validarEntero(stockDouble);
+
+                            if (stock != -1) {
+
+                                String instrumento = registro.getString();
+
+                                if (instrumento != null) {
+
+                                    // Puede ser material(viento), tipoPercusion(percusion) o tipoCuerda(cuerda)
+                                    String variableIndefinida1 = registro.getString();
+
+                                    if (variableIndefinida1 != null) {
+
+                                        // Puede ser null(viento), material(percusion), numCuerdas(cuerda)
+                                        String variableIndefinida2 = registro.getString();
+
+                                        if (variableIndefinida2 != null) {
+
+                                            // Puede ser null(viento), altura(percusion), material(cuerda)
+                                            String variableIndefinida3 = registro.getString();
+
+                                            if (variableIndefinida3 != null) {
+
+                                                // Puede ser null(viento), null (percusion), tipoInstrumento(cuerda)
+                                                String variableIndefinida4 = registro.getString();
+
+                                                // Es cuerda
+                                                if (variableIndefinida4 != null) {
+
+                                                    // Validacion de que el numero de cuerdas sea entero
+                                                    double numCuerdasDouble = validarNumero(variableIndefinida2);
+                                                    int numCuerdas = validarEntero(numCuerdasDouble);
+
+                                                    if (numCuerdas != -1) {
+
+                                                        Cuerda instrumentoCuerda = new Cuerda(codigo, precio, stock, instrumento, variableIndefinida1, numCuerdas, variableIndefinida3, variableIndefinida4);
+                                                        escribirAuxiliar(instrumentoCuerda);
+                                                    }
+
+                                                    // Es percusion
+                                                } else {
+
+                                                    Percusion instrumentoPercusion = new Percusion(codigo, precio, stock, instrumento, variableIndefinida2, variableIndefinida1, variableIndefinida3);
+                                                    escribirAuxiliar(instrumentoPercusion);
+                                                }
+                                            }
+
+                                            // Es viento
+                                        } else {
+
+                                            Viento instrumentoViento = new Viento(codigo, precio, stock, instrumento, variableIndefinida1);
+                                            escribirAuxiliar(instrumentoViento);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Metodo de venta de instrumento
+     *
+     * @param codigo (instrumento a vender)
+     * @throws IOException en caso de error
+     */
+    @Override
+    public void venderInstrumento(String codigo) throws IOException {
+
+        ListaInstrumentos lista = lecturaBaseDatos();
+
+        for (int i=0; i<lista.cantActual; i++){
+
+            if (codigo.equalsIgnoreCase(lista.buscar(i).getCodigo())){
+
+                // Se actualiza tanto el archivo auxiliar como la base de datos
+                lista.venderInstrumento(i);
+                escrituraArchivo(lista,"basedatos.csv",false);
+
+                ListaInstrumentos lista1 = lecturaBaseDatos();
+                escrituraArchivo(lista1,"auxiliar.csv",false);
+                StdOut.println("************ Boleta ************\n"+ "\n" + "Instrumento vendido: "+lista.buscar(i).getInstrumento()+"\n"+ "Precio: "+lista.buscar(i).getPrecio()+ "\n");
+
+                // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
+                return;
+            }
+        }
+
+        // Si no retorna, no se encontro el codigo
+        StdOut.println("No existe el codigo introducido en la base de datos");
+    }
+
+    /**
      * consultar la base de datos, ya sea por completo o un solo instrumento
      *
      */
@@ -116,6 +243,30 @@ public class SistemaImpl implements Sistema {
 
             desplegarInstrumento();
         }
+    }
+
+    /**
+     * escritura de la base de datos del sistema
+     *
+     * @throws IOException en caso de que el archivo tire error
+     */
+
+    @Override
+    // Archivo con los datos sin repetir, en caso de que los instrumentos sean iguales se suma el stock
+    public void escribirBaseDatos() throws IOException {
+
+        ArchivoEntrada archivoEntrada = new ArchivoEntrada("auxiliar.csv");
+        ListaInstrumentos lista = new ListaInstrumentos(100);
+
+        // Lectura del archivo auxiliar y almacenamiento en lista tipo ListaInstrumento
+        lista = lecturaArchivo(archivoEntrada,lista);
+
+        // Eliminacion de instrumentos repetidos, si los instrumentos son iguales se suma el stock
+        lista.filtrarLista();
+
+        // Escritura del archivo basedatos.csv, con los datos ya filtrados
+
+        escrituraArchivo(lista,"basedatos.csv",false);
     }
 
     /**
@@ -252,136 +403,8 @@ public class SistemaImpl implements Sistema {
     }
 
     /**
-     * Metodo de venta de instrumento
-     *
-     * @param codigo (instrumento a vender)
-     * @throws IOException en caso de error
-     */
-    @Override
-    public void venderInstrumento(String codigo) throws IOException {
-
-        ListaInstrumentos lista = lecturaBaseDatos();
-
-        for (int i=0; i<lista.cantActual; i++){
-
-            if (codigo.equalsIgnoreCase(lista.buscar(i).getCodigo())){
-
-                // Se actualiza tanto el archivo auxiliar como la base de datos
-                lista.venderInstrumento(i);
-                escrituraArchivo(lista,"basedatos.csv",false);
-
-                ListaInstrumentos lista1 = lecturaBaseDatos();
-                escrituraArchivo(lista1,"auxiliar.csv",false);
-                StdOut.println("************ Boleta ************\n"+ "\n" + "Instrumento vendido: "+lista.buscar(i).getInstrumento()+"\n"+ "Precio: "+lista.buscar(i).getPrecio()+ "\n");
-
-                // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
-                return;
-            }
-        }
-
-        // Si no retorna, no se encontro el codigo
-        StdOut.println("No existe el codigo introducido en la base de datos");
-    }
-
-    /**
-     * lectura del archivo aniadirInstrumentos.csv
-     *
-     * @param archivoEntrada "aniadirInstrumentos.csv"
-     * @throws IOException en caso de que el archivo implicado tire error
-     */
-    @Override
-    public void leerArchivoInstrumentos(ArchivoEntrada archivoEntrada) throws IOException {
-
-        // lectura de archivo
-        while (!archivoEntrada.isEndFile()) {
-
-            Registro registro = archivoEntrada.getRegistro();
-            String codigo = registro.getString();
-
-            if (codigo != null) {
-
-                String precioString = registro.getString();
-
-                if (precioString != null) {
-
-                    // validacion de que el precio sea un numero
-                    double precio = validarNumero(precioString);
-
-                    if (precio != -1) {
-
-                        String stockString = registro.getString();
-
-                        // Validacion de que el stock sea un numero entero
-                        if (stockString != null) {
-
-                            double stockDouble = validarNumero(stockString);
-                            int stock = validarEntero(stockDouble);
-
-                            if (stock != -1) {
-
-                                String instrumento = registro.getString();
-
-                                if (instrumento != null) {
-
-                                    // Puede ser material(viento), tipoPercusion(percusion) o tipoCuerda(cuerda)
-                                    String variableIndefinida1 = registro.getString();
-
-                                    if (variableIndefinida1 != null) {
-
-                                        // Puede ser null(viento), material(percusion), numCuerdas(cuerda)
-                                        String variableIndefinida2 = registro.getString();
-
-                                        if (variableIndefinida2 != null) {
-
-                                            // Puede ser null(viento), altura(percusion), material(cuerda)
-                                            String variableIndefinida3 = registro.getString();
-
-                                            if (variableIndefinida3 != null) {
-
-                                                // Puede ser null(viento), null (percusion), tipoInstrumento(cuerda)
-                                                String variableIndefinida4 = registro.getString();
-
-                                                // Es cuerda
-                                                if (variableIndefinida4 != null) {
-
-                                                    // Validacion de que el numero de cuerdas sea entero
-                                                    double numCuerdasDouble = validarNumero(variableIndefinida2);
-                                                    int numCuerdas = validarEntero(numCuerdasDouble);
-
-                                                    if (numCuerdas != -1) {
-
-                                                        Cuerda instrumentoCuerda = new Cuerda(codigo, precio, stock, instrumento, variableIndefinida1, numCuerdas, variableIndefinida3, variableIndefinida4);
-                                                        escribirAuxiliar(instrumentoCuerda);
-                                                    }
-
-                                                    // Es percusion
-                                                } else {
-
-                                                    Percusion instrumentoPercusion = new Percusion(codigo, precio, stock, instrumento, variableIndefinida2, variableIndefinida1, variableIndefinida3);
-                                                    escribirAuxiliar(instrumentoPercusion);
-                                                }
-                                            }
-
-                                            // Es viento
-                                        } else {
-
-                                            Viento instrumentoViento = new Viento(codigo, precio, stock, instrumento, variableIndefinida1);
-                                            escribirAuxiliar(instrumentoViento);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * escritura del archivo auxiliar.csv
      */
-
     // Archivo auxiliar que almacena los datos, esten repetidos o no (sin validar el dato)
     public void escribirAuxiliar(Instrumento instrumento){
 
@@ -434,30 +457,6 @@ public class SistemaImpl implements Sistema {
             e.printStackTrace();
         }
 
-    }
-
-    /**
-     * escritura de la base de datos del sistema
-     *
-     * @throws IOException en caso de que el archivo tire error
-     */
-
-    @Override
-    // Archivo con los datos sin repetir, en caso de que los instrumentos sean iguales se suma el stock
-    public void escribirBaseDatos() throws IOException {
-
-        ArchivoEntrada archivoEntrada = new ArchivoEntrada("auxiliar.csv");
-        ListaInstrumentos lista = new ListaInstrumentos(100);
-
-        // Lectura del archivo auxiliar y almacenamiento en lista tipo ListaInstrumento
-        lista = lecturaArchivo(archivoEntrada,lista);
-
-        // Eliminacion de instrumentos repetidos, si los instrumentos son iguales se suma el stock
-        lista.filtrarLista();
-
-        // Escritura del archivo basedatos.csv, con los datos ya filtrados
-
-        escrituraArchivo(lista,"basedatos.csv",false);
     }
 
         /**

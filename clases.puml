@@ -1,0 +1,81 @@
+@startuml
+
+hide empty members
+left to right direction
+
+abstract class Instrumento{
+
+-codigo:String
+-precio: double
+-stock: int
+-instrumento: String
+-material: String
++Instrumento(codigo: String, precio: double, stock: int, instrumento: String, material: String)
++get's() & set()'s
+}
+
+class Cuerda{
+
+-tipoCuerda: String
+-numCuerdas: int
+-tipoInstrumento: String
++Cuerda(tipoCuerda: String, numCuerdas: int, tipoInstrumento: String)
++ get()'s
+}
+
+class Percusion{
+
+tipoPercusion: String
+altura: String
++Percusion(tipoPercusion: String, altura: String)
++get()'s
+}
+
+class Viento{
+
++Viento()
+}
+
+class ListaInstrumentos{
+-lista: Instrumento[]
+-cantMax: int
+-cantActual: int
++ListaInstrumentos(cantMax: int)
++agregar(instrumento: Instrumento): void
++buscar(pos: int): Instrumento
++venderInstrumento(pos: int): void
++filtrarLista(): void
++esIgual(e1: Instrumento, e2: Instrumento): boolean
+}
+
+class SistemaImpl{
+
++SistemaImpl()
++desplegarInventario(): void
++desplegarInstrumento(): void
++escribirAuxiliar(instrumento: Instrumento): void
++validarNumero(numeroString: String): double
++validarEntero(numero: double): int
++lecturaBaseDatos(): ListaInstrumentos
++lecturaArchivo(archivoEntrada: ArchivoEntrada, lista: ListaInstrumentos): ListaInstrumentos
++escrituraArchivo(lista: ListaInstrumentos, nombreArchivo: String, append: boolean): void
++opcionMenu(): int
+}
+
+interface Sistema <<interface>> {
+
++menu(): void
++leerArchivoInstrumentos(archivoEntrada: ArchivoEntrada): void
++escribirBaseDatos(): void
++venderInstrumento(codigo: String): void
++consultarInventario(): void
+}
+
+Instrumento <|-- Cuerda: hereda
+Instrumento <|-- Percusion: hereda
+Instrumento <|-- Viento: hereda
+Sistema <|.. SistemaImpl: implementa
+Instrumento "1..*" <--o ListaInstrumentos: almacena
+ListaInstrumentos "1..*" <-- SistemaImpl: utiliza
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+
+object Instrumento{
+codigo
+precio
+stock
+nombre del instrumento
+material
+}
+
+note left{
+Son agregados en una base de datos
+donde pueden administrarse
+}
+
+object Cuerda{
+tipo de Cuerda
+numero de cuerdas
+tipo de instrumento
+}
+
+object Percusion{
+tipo de percusion
+altura
+}
+
+object Viento
+
+
+Instrumento <-- Percusion: es
+Instrumento <-- Cuerda: es
+Instrumento <-- Viento: es
+
+
+@enduml
