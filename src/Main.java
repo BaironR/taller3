@@ -1,5 +1,5 @@
 
-import java.io.IOException;
+import ucn.StdOut;
 
 /**
  * Main
@@ -9,7 +9,6 @@ public class Main {
     /**
      *
      * @param args
-     * @throws IOException en caso de error
      */
     public static void main(String[] args){
 
@@ -18,8 +17,9 @@ public class Main {
             SistemaImpl sistema = new SistemaImpl();
             sistema.menu();
 
-        } catch (IOException e){
+        } catch (Exception e){
 
+            StdOut.println("Hubo un problema en la ejecucion del programa: ");
             e.printStackTrace();
         }
     }

@@ -10,7 +10,7 @@ public class SistemaImpl implements Sistema {
     /**
      * Constructor de SistemaImpl
      */
-    public SistemaImpl() throws IOException {
+    public SistemaImpl(){
 
         // Cada vez que se carga el programa, se inicia el auxiliar con los valores de la base de datos
         ListaInstrumentos lista = lecturaBaseDatos();
@@ -20,10 +20,9 @@ public class SistemaImpl implements Sistema {
     /**
      * menu del sistema
      *
-     * @throws IOException en caso de que los archivos implicados tiren error
      */
     @Override
-    public void menu() throws IOException {
+    public void menu(){
 
         int opcion = opcionMenu();
 
@@ -40,16 +39,24 @@ public class SistemaImpl implements Sistema {
                     // Opcion 1: Agregar instrumento
 
                     case 1 -> {
-                        ArchivoEntrada archivoEntrada = new ArchivoEntrada("aniadirInstrumentos.csv");
-                        StdOut.println("Modifique el archivo aniadirInstrumentos.csv para añadir instrumentos\n" + "Ingrese 1 cuando este listo");
-                        String listo = StdIn.readString();
-                        while (!listo.equalsIgnoreCase("1")) {
 
-                            StdOut.println("Escriba 1 cuando este listo");
-                            listo = StdIn.readString();
+                        try{
+
+                            ArchivoEntrada archivoEntrada = new ArchivoEntrada("aniadirInstrumentos.csv");
+                            StdOut.println("Modifique el archivo aniadirInstrumentos.csv para añadir instrumentos\n" + "Ingrese 1 cuando este listo");
+                            String listo = StdIn.readString();
+                            while (!listo.equalsIgnoreCase("1")) {
+
+                                StdOut.println("Escriba 1 cuando este listo");
+                                listo = StdIn.readString();
+                            }
+                            // lectura del archivo aniadirInstrumentos.csv
+                            leerArchivoInstrumentos(archivoEntrada);
+
+                        } catch (Exception e){
+
+                            StdOut.println("No existe el archivo aniadirInstrumentos.csv, agreguelo manualmente y reinicie el programa");
                         }
-                        // lectura del archivo aniadirInstrumentos.csv
-                        leerArchivoInstrumentos(archivoEntrada);
                     }
 
                     // Opcion 2: Vender instrumento
@@ -176,27 +183,29 @@ public class SistemaImpl implements Sistema {
      * Metodo de venta de instrumento
      *
      * @param codigo (instrumento a vender)
-     * @throws IOException en caso de error
      */
     @Override
-    public void venderInstrumento(String codigo) throws IOException {
+    public void venderInstrumento(String codigo){
 
         ListaInstrumentos lista = lecturaBaseDatos();
 
-        for (int i=0; i<lista.cantActual; i++){
+        if (lista != null){
 
-            if (codigo.equalsIgnoreCase(lista.buscar(i).getCodigo())){
+            for (int i=0; i<lista.cantActual; i++){
 
-                // Se actualiza tanto el archivo auxiliar como la base de datos
-                lista.venderInstrumento(i);
-                escrituraArchivo(lista,"basedatos.csv",false);
+                if (codigo.equalsIgnoreCase(lista.buscar(i).getCodigo())){
 
-                ListaInstrumentos lista1 = lecturaBaseDatos();
-                escrituraArchivo(lista1,"auxiliar.csv",false);
-                StdOut.println("************ Boleta ************\n"+ "\n" + "Instrumento vendido: "+lista.buscar(i).getInstrumento()+"\n"+ "Precio: "+lista.buscar(i).getPrecio()+ "\n");
+                    // Se actualiza tanto el archivo auxiliar como la base de datos
+                    lista.venderInstrumento(i);
+                    escrituraArchivo(lista,"basedatos.csv",false);
 
-                // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
-                return;
+                    ListaInstrumentos lista1 = lecturaBaseDatos();
+                    escrituraArchivo(lista1,"auxiliar.csv",false);
+                    StdOut.println("************ Boleta ************\n"+ "\n" + "Instrumento vendido: "+lista.buscar(i).getInstrumento()+"\n"+ "Precio: "+lista.buscar(i).getPrecio()+ "\n");
+
+                    // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
+                    return;
+                }
             }
         }
 
@@ -209,8 +218,7 @@ public class SistemaImpl implements Sistema {
      *
      */
     @Override
-    public void consultarInventario() throws IOException {
-
+    public void consultarInventario(){
 
         StdOut.println("""
                   ************ Consultar inventario ************
@@ -272,134 +280,147 @@ public class SistemaImpl implements Sistema {
     /**
      * Desplegar datos de todos los instrumentos de la base de datos
      *
-     * @throws IOException en caso de error
      */
-    public void desplegarInventario() throws IOException {
+    public void desplegarInventario(){
 
         ListaInstrumentos lista = lecturaBaseDatos();
 
-        StdOut.println("");
-        StdOut.println("************ Instrumentos de cuerda ************");
-        for (int i = 0; i < lista.cantActual; i++) {
+        if (lista != null){
 
-            if (lista.buscar(i).getStock() > 0) {
+            StdOut.println("");
+            StdOut.println("************ Instrumentos de cuerda ************");
+            for (int i = 0; i < lista.cantActual; i++) {
 
-                Instrumento e1 = lista.buscar(i);
+                if (lista.buscar(i).getStock() > 0) {
 
-                if (e1 instanceof Cuerda) {
+                    Instrumento e1 = lista.buscar(i);
 
-                    String codigo = e1.getCodigo();
-                    double precio = e1.getPrecio();
-                    int stock = e1.getStock();
-                    String instrumento = e1.getInstrumento();
-                    String tipoCuerda = ((Cuerda) e1).getTipoCuerda();
-                    int numCuerdas = ((Cuerda) e1).getNumCuerdas();
-                    String material = e1.getMaterial();
-                    String tipoInstrumento = ((Cuerda) e1).getTipoInstrumento();
+                    if (e1 instanceof Cuerda) {
 
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoCuerda+", "+numCuerdas+", "+material+", "+tipoInstrumento);
+                        String codigo = e1.getCodigo();
+                        double precio = e1.getPrecio();
+                        int stock = e1.getStock();
+                        String instrumento = e1.getInstrumento();
+                        String tipoCuerda = ((Cuerda) e1).getTipoCuerda();
+                        int numCuerdas = ((Cuerda) e1).getNumCuerdas();
+                        String material = e1.getMaterial();
+                        String tipoInstrumento = ((Cuerda) e1).getTipoInstrumento();
+
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoCuerda+", "+numCuerdas+", "+material+", "+tipoInstrumento);
+                    }
                 }
             }
-        }
 
-        StdOut.println("");
-        StdOut.println("************ Instrumentos de percusion ************");
-        for (int i = 0; i < lista.cantActual; i++) {
+            StdOut.println("");
+            StdOut.println("************ Instrumentos de percusion ************");
+            for (int i = 0; i < lista.cantActual; i++) {
 
-            if (lista.buscar(i).getStock() > 0) {
+                if (lista.buscar(i).getStock() > 0) {
 
-                Instrumento e1 = lista.buscar(i);
+                    Instrumento e1 = lista.buscar(i);
 
-                if (e1 instanceof Percusion) {
+                    if (e1 instanceof Percusion) {
 
-                    String codigo = e1.getCodigo();
-                    double precio = e1.getPrecio();
-                    int stock = e1.getStock();
-                    String instrumento = e1.getInstrumento();
-                    String tipoPercusion = ((Percusion) e1).getTipoPercusion();
-                    String material = e1.getMaterial();
-                    String altura = ((Percusion) e1).getAltura();
+                        String codigo = e1.getCodigo();
+                        double precio = e1.getPrecio();
+                        int stock = e1.getStock();
+                        String instrumento = e1.getInstrumento();
+                        String tipoPercusion = ((Percusion) e1).getTipoPercusion();
+                        String material = e1.getMaterial();
+                        String altura = ((Percusion) e1).getAltura();
 
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoPercusion+", "+material+", "+altura);
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoPercusion+", "+material+", "+altura);
+                    }
                 }
             }
-        }
 
-        StdOut.println("");
-        StdOut.println("************ Instrumentos de viento ************");
-        for (int i = 0; i < lista.cantActual; i++) {
+            StdOut.println("");
+            StdOut.println("************ Instrumentos de viento ************");
+            for (int i = 0; i < lista.cantActual; i++) {
 
-            if (lista.buscar(i).getStock() > 0) {
+                if (lista.buscar(i).getStock() > 0) {
 
-                Instrumento e1 = lista.buscar(i);
+                    Instrumento e1 = lista.buscar(i);
 
-                if (e1 instanceof Viento) {
+                    if (e1 instanceof Viento) {
 
-                    String codigo = e1.getCodigo();
-                    double precio = e1.getPrecio();
-                    int stock = e1.getStock();
-                    String instrumento = e1.getInstrumento();
-                    String material = e1.getMaterial();
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+material);
+                        String codigo = e1.getCodigo();
+                        double precio = e1.getPrecio();
+                        int stock = e1.getStock();
+                        String instrumento = e1.getInstrumento();
+                        String material = e1.getMaterial();
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+material);
+                    }
                 }
             }
-        }
 
-        StdOut.println("");
+            StdOut.println("");
+
+        } else {
+
+            StdOut.println("La base de datos esta vacia");
+            StdOut.println("");
+        }
     }
 
     /**
      * Preguntar por el codigo del instrumento y desplegarlo
      *
-     * @throws IOException en caso de error
      */
-    public void desplegarInstrumento() throws IOException {
+    public void desplegarInstrumento(){
 
         StdOut.println("Ingrese el codigo del instrumento que desea buscar");
         String codigoBuscado = StdIn.readString();
 
         ListaInstrumentos lista = lecturaBaseDatos();
 
-        for (int i=0; i<lista.cantActual; i++){
+        if (lista != null){
 
-            // El codigo es encontrado en la base de datos
-            if (lista.buscar(i).getCodigo().equalsIgnoreCase(codigoBuscado)){
+            for (int i=0; i<lista.cantActual; i++){
 
-                Instrumento e1 = lista.buscar(i);
-                String codigo = e1.getCodigo();
-                double precio = e1.getPrecio();
-                int stock = e1.getStock();
-                String instrumento = e1.getInstrumento();
-                String material = e1.getMaterial();
+                // El codigo es encontrado en la base de datos
+                if (lista.buscar(i).getCodigo().equalsIgnoreCase(codigoBuscado)){
 
-                if (e1 instanceof Viento) {
+                    Instrumento e1 = lista.buscar(i);
+                    String codigo = e1.getCodigo();
+                    double precio = e1.getPrecio();
+                    int stock = e1.getStock();
+                    String instrumento = e1.getInstrumento();
+                    String material = e1.getMaterial();
 
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+material);
+                    if (e1 instanceof Viento) {
 
-                } else if (e1 instanceof Percusion){
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+material);
 
-                    String tipoPercusion = ((Percusion) e1).getTipoPercusion();
-                    String altura = ((Percusion) e1).getAltura();
+                    } else if (e1 instanceof Percusion){
 
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoPercusion+", "+material+", "+altura);
+                        String tipoPercusion = ((Percusion) e1).getTipoPercusion();
+                        String altura = ((Percusion) e1).getAltura();
 
-                } else {
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoPercusion+", "+material+", "+altura);
 
-                    String tipoCuerda = ((Cuerda) e1).getTipoCuerda();
-                    int numCuerdas = ((Cuerda) e1).getNumCuerdas();
-                    String tipoInstrumento = ((Cuerda) e1).getTipoInstrumento();
+                    } else {
 
-                    StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoCuerda+", "+numCuerdas+", "+material+", "+tipoInstrumento);
+                        String tipoCuerda = ((Cuerda) e1).getTipoCuerda();
+                        int numCuerdas = ((Cuerda) e1).getNumCuerdas();
+                        String tipoInstrumento = ((Cuerda) e1).getTipoInstrumento();
+
+                        StdOut.println(codigo+", "+precio+", "+stock+", "+instrumento+", "+tipoCuerda+", "+numCuerdas+", "+material+", "+tipoInstrumento);
+                    }
+
+                    StdOut.println("");
+                    // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
+                    return;
                 }
-
-                StdOut.println("");
-                // Como solo es un codigo, acaba la funcion al encontrarlo en la base de datos
-                return;
             }
-        }
 
-        // Si no retorna, no se encontro el codigo
-        StdOut.println("No existe el codigo introducido en la base de datos");
+            // Si no retorna, no se encontro el codigo
+            StdOut.println("No existe el codigo introducido en la base de datos");
+        } else {
+
+            StdOut.println("La base de datos esta vacia");
+            StdOut.println("");
+        }
     }
 
     /**
@@ -509,14 +530,21 @@ public class SistemaImpl implements Sistema {
      * Lectura del archivo basedatos.csv
      *
      * @return lista (almacena la base de datos)
-     * @throws IOException en caso de error
      */
-  public ListaInstrumentos lecturaBaseDatos() throws IOException {
+  public ListaInstrumentos lecturaBaseDatos(){
 
-      ArchivoEntrada archivoEntrada = new ArchivoEntrada("basedatos.csv");
-      ListaInstrumentos lista = new ListaInstrumentos(100);
+      try{
 
-      return lecturaArchivo(archivoEntrada,lista);
+          ArchivoEntrada archivoEntrada = new ArchivoEntrada("basedatos.csv");
+          ListaInstrumentos lista = new ListaInstrumentos(100);
+
+          return lecturaArchivo(archivoEntrada,lista);
+
+      }catch (Exception e){
+
+          return null;
+      }
+
   }
 
     /**
@@ -529,56 +557,59 @@ public class SistemaImpl implements Sistema {
      */
   public ListaInstrumentos lecturaArchivo(ArchivoEntrada archivoEntrada, ListaInstrumentos lista) throws IOException {
 
-      while (!archivoEntrada.isEndFile()) {
+      if (lista != null){
 
-          Registro registro = archivoEntrada.getRegistro();
-          String codigo = registro.getString();
+          while (!archivoEntrada.isEndFile()) {
 
-          if (codigo != null) {
+              Registro registro = archivoEntrada.getRegistro();
+              String codigo = registro.getString();
 
-              String precioString = registro.getString();
+              if (codigo != null) {
 
-              if (precioString != null) {
+                  String precioString = registro.getString();
 
-                  double precio = validarNumero(precioString);
-                  int stock = registro.getInt();
-                  String instrumento = registro.getString();
+                  if (precioString != null) {
 
-                  // Puede ser material(viento), tipoPercusion(percusion) o tipoCuerda(cuerda)
-                  String variableIndefinida1 = registro.getString();
+                      double precio = validarNumero(precioString);
+                      int stock = registro.getInt();
+                      String instrumento = registro.getString();
 
-                  // Puede ser null(viento), material(percusion), numCuerdas(cuerda)
-                  String variableIndefinida2 = registro.getString();
+                      // Puede ser material(viento), tipoPercusion(percusion) o tipoCuerda(cuerda)
+                      String variableIndefinida1 = registro.getString();
 
-                  // No es de viento
-                  if (variableIndefinida2 != null) {
+                      // Puede ser null(viento), material(percusion), numCuerdas(cuerda)
+                      String variableIndefinida2 = registro.getString();
 
-                      // Puede ser null(viento), altura(percusion), material(cuerda)
-                      String variableIndefinida3 = registro.getString();
+                      // No es de viento
+                      if (variableIndefinida2 != null) {
 
-                      // Puede ser null(viento), null (percusion), tipoInstrumento(cuerda)
-                      String variableIndefinida4 = registro.getString();
+                          // Puede ser null(viento), altura(percusion), material(cuerda)
+                          String variableIndefinida3 = registro.getString();
 
-                      // Es de cuerda
-                      if (variableIndefinida4 != null) {
+                          // Puede ser null(viento), null (percusion), tipoInstrumento(cuerda)
+                          String variableIndefinida4 = registro.getString();
 
-                          int numCuerdas = Integer.parseInt(variableIndefinida2);
-                          Cuerda instrumentoCuerda = new Cuerda(codigo, precio, stock, instrumento, variableIndefinida1, numCuerdas, variableIndefinida3, variableIndefinida4);
-                          lista.agregar(instrumentoCuerda);
+                          // Es de cuerda
+                          if (variableIndefinida4 != null) {
+
+                              int numCuerdas = Integer.parseInt(variableIndefinida2);
+                              Cuerda instrumentoCuerda = new Cuerda(codigo, precio, stock, instrumento, variableIndefinida1, numCuerdas, variableIndefinida3, variableIndefinida4);
+                              lista.agregar(instrumentoCuerda);
 
 
-                          // Es percusion
+                              // Es percusion
+                          } else {
+
+                              Percusion instrumentoPercusion = new Percusion(codigo, precio, stock, instrumento, variableIndefinida2, variableIndefinida1, variableIndefinida3);
+                              lista.agregar(instrumentoPercusion);
+                          }
+
+                          // Es de viento
                       } else {
 
-                          Percusion instrumentoPercusion = new Percusion(codigo, precio, stock, instrumento, variableIndefinida2, variableIndefinida1, variableIndefinida3);
-                          lista.agregar(instrumentoPercusion);
+                          Viento instrumentoViento = new Viento(codigo, precio, stock, instrumento, variableIndefinida1);
+                          lista.agregar(instrumentoViento);
                       }
-
-                      // Es de viento
-                  } else {
-
-                      Viento instrumentoViento = new Viento(codigo, precio, stock, instrumento, variableIndefinida1);
-                      lista.agregar(instrumentoViento);
                   }
               }
           }
@@ -596,54 +627,56 @@ public class SistemaImpl implements Sistema {
      */
   public void escrituraArchivo(ListaInstrumentos lista, String nombreArchivo, boolean append){
 
-      try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo, append))) {
+          if (lista != null) {
 
-          // Lectura y escritura de la lista de tipo ListaInstrumentos
-          for (int i = 0; i < lista.cantActual; i++) {
+              try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo, append))) {
 
-              // Variables generales de todos los instrumentos
-              Instrumento instrumento = lista.buscar(i);
-              String codigo = instrumento.getCodigo();
-              String precio = String.valueOf(instrumento.getPrecio());
-              String stock = String.valueOf(instrumento.getStock());
-              String nombreInstrumento = instrumento.getInstrumento();
-              String material = instrumento.getMaterial();
+              // Lectura y escritura de la lista de tipo ListaInstrumentos
+              for (int i = 0; i < lista.cantActual; i++) {
 
-              // Variables que dependen de la clase del objeto (Cuerda, percusion o viento)
-              if (instrumento instanceof Cuerda) {
+                  // Variables generales de todos los instrumentos
+                  Instrumento instrumento = lista.buscar(i);
+                  String codigo = instrumento.getCodigo();
+                  String precio = String.valueOf(instrumento.getPrecio());
+                  String stock = String.valueOf(instrumento.getStock());
+                  String nombreInstrumento = instrumento.getInstrumento();
+                  String material = instrumento.getMaterial();
 
-                  String tipoCuerda = ((Cuerda) instrumento).getTipoCuerda();
-                  String numeroCuerdas = String.valueOf(((Cuerda) instrumento).getNumCuerdas());
-                  String tipoInstrumento = ((Cuerda) instrumento).getTipoInstrumento();
-                  String[] data = {codigo, precio, stock, nombreInstrumento, tipoCuerda, numeroCuerdas, material, tipoInstrumento};
+                  // Variables que dependen de la clase del objeto (Cuerda, percusion o viento)
+                  if (instrumento instanceof Cuerda) {
 
-                  // Escritura del vector data delimitado con comas
-                  bw.write(String.join(",", data));
-                  // Salto de linea o registro
-                  bw.newLine();
+                      String tipoCuerda = ((Cuerda) instrumento).getTipoCuerda();
+                      String numeroCuerdas = String.valueOf(((Cuerda) instrumento).getNumCuerdas());
+                      String tipoInstrumento = ((Cuerda) instrumento).getTipoInstrumento();
+                      String[] data = {codigo, precio, stock, nombreInstrumento, tipoCuerda, numeroCuerdas, material, tipoInstrumento};
 
-              } else if (instrumento instanceof Percusion) {
+                      // Escritura del vector data delimitado con comas
+                      bw.write(String.join(",", data));
+                      // Salto de linea o registro
+                      bw.newLine();
 
-                  String tipoPercusion = ((Percusion) instrumento).getTipoPercusion();
-                  String altura = ((Percusion) instrumento).getAltura();
-                  String[] data = {codigo, precio, stock, nombreInstrumento, tipoPercusion, material, altura};
-                  bw.write(String.join(",", data));
-                  bw.newLine();
+                  } else if (instrumento instanceof Percusion) {
 
-              } else if (instrumento instanceof Viento) {
+                      String tipoPercusion = ((Percusion) instrumento).getTipoPercusion();
+                      String altura = ((Percusion) instrumento).getAltura();
+                      String[] data = {codigo, precio, stock, nombreInstrumento, tipoPercusion, material, altura};
+                      bw.write(String.join(",", data));
+                      bw.newLine();
 
-                  String[] data = {codigo, precio, stock, nombreInstrumento, material};
-                  bw.write(String.join(",", data));
-                  bw.newLine();
+                  } else if (instrumento instanceof Viento) {
+
+                      String[] data = {codigo, precio, stock, nombreInstrumento, material};
+                      bw.write(String.join(",", data));
+                      bw.newLine();
+                  }
               }
+
+              bw.close();
+
+          } catch (IOException e) {
+              e.printStackTrace();
           }
-
-          bw.close();
-
-      } catch (IOException e) {
-          e.printStackTrace();
       }
-
   }
 
     /**
